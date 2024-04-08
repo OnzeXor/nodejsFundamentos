@@ -1,6 +1,7 @@
 {
   "name": "node",
   "type": "module",
+  "server3333": "node --watch scr/server.js",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

@@ -6,7 +6,7 @@ const users = []
 
 
 //meu server 
-const server = http.createServer(/*requisiçao e resposta*/(req, res)=>{
+const server = http.createServer(/*requisiçao e resposta*/ async (req, res)=>{
     /*
     pega o metodo e a url da requisiçao
     Exemplos:
@@ -22,16 +22,32 @@ const server = http.createServer(/*requisiçao e resposta*/(req, res)=>{
     
     */
     const {method, url} = req
+
+    const buffers = []
+
+    for await(const chunk of req){
+        buffers.push(chunk)
+
+    }
+    
+    try{
+        req.body = JSON.parse(Buffer.concat(buffers).toString())
+    }catch{
+        req.body = null
+    }
+
     if (method === 'GET' && url === '/users') {
         return res
         .setHeader('Content-type', 'application/json')
         .end(JSON.stringify(users))
     }
     if (method === 'POST' && url === '/users') {
+        const {name, email } = req.body
+        
         users.push({
             id:1,
-            name: 'Fulano de Tal',
-            email: 'fulanodetal@example.com'
+            name,
+            email
         })
         return res.end('criação de usuarios')
     }
