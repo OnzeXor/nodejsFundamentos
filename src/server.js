@@ -22,36 +22,56 @@ const server = http.createServer(/*requisiçao e resposta*/ async (req, res)=>{
     
     */
     const {method, url} = req
+    // pega o metodo e url da requisiçao
+
 
     const buffers = []
-
+    //pega as informaçoes que serão mandadas e transforma em uma coisa só dps que é mandado tudo
     for await(const chunk of req){
         buffers.push(chunk)
 
     }
     
+    //tenta pegar as informaçoes do buffer e transformar em codigo
     try{
         req.body = JSON.parse(Buffer.concat(buffers).toString())
+        
     }catch{
+        //se não der ele manda null
         req.body = null
     }
 
+    
+    //se o metodo for get e a url users ele vai pegar a lista de usuarios
     if (method === 'GET' && url === '/users') {
         return res
         .setHeader('Content-type', 'application/json')
         .end(JSON.stringify(users))
     }
+    // se for post ele cria o usuario
     if (method === 'POST' && url === '/users') {
+        //vai pegar o body da requisiçao onde tem as informaçoes que está sendo enviada
+        //para pegar o nome e o email
         const {name, email } = req.body
-        
-        users.push({
-            id:1,
-            name,
-            email
-        })
+        //se não tiver usuario ainda ele cria o primeiro id
+        if(users.length == 0){
+            users.push({
+                id: 1,
+                name,
+                email
+            })
+        }else{
+            //adiciona um id novo a cada novo usuario criado
+            users.push({
+                id: users[users.length -1].id + 1,
+                name,
+                email
+            })
+        }
         return res.end('criação de usuarios')
     }
-    return res.end("hellowarld")
+    
+    return res.end("canal base")
 })
 
 server.listen(3333)
