@@ -1,9 +1,10 @@
 //importa o http
 import http from "node:http"
 import { json } from "./middlewares/json.js"
+import { Database } from "./middlewares/databse.js"
 
 //lista de usuarios(só na minha maquina e se eu atualizar ele reinicia)
-const users = []
+const database = new Database()
 
 
 //meu server 
@@ -30,6 +31,8 @@ const server = http.createServer(/*requisiçao e resposta*/ async (req, res)=>{
     
     //se o metodo for get e a url users ele vai pegar a lista de usuarios
     if (method === 'GET' && url === '/users') {
+        const users = database.select('users')
+        
         return res
         .end(JSON.stringify(users))
     }
@@ -39,14 +42,15 @@ const server = http.createServer(/*requisiçao e resposta*/ async (req, res)=>{
         //para pegar o nome e o email
         const {name, email } = req.body
         //se não tiver usuario ainda ele cria o primeiro id
-        if(users.length == 0){
-            users.push({
+        if(database.select('users').length == 0){
+            const user = {
                 id: 1,
                 name,
                 email
-            })
+            }
+            database.insert('users',user)
         }else{
-            //adiciona um id novo a cada novo usuario criado
+            //adiciona um id novo a cada novo usuario criad
             users.push({
                 id: users[users.length -1].id + 1,
                 name,
