@@ -1,5 +1,6 @@
 //importa o http
 import http from "node:http"
+import { json } from "./middlewares/json.js"
 
 //lista de usuarios(só na minha maquina e se eu atualizar ele reinicia)
 const users = []
@@ -25,27 +26,11 @@ const server = http.createServer(/*requisiçao e resposta*/ async (req, res)=>{
     // pega o metodo e url da requisiçao
 
 
-    const buffers = []
-    //pega as informaçoes que serão mandadas e transforma em uma coisa só dps que é mandado tudo
-    for await(const chunk of req){
-        buffers.push(chunk)
-
-    }
-    
-    //tenta pegar as informaçoes do buffer e transformar em codigo
-    try{
-        req.body = JSON.parse(Buffer.concat(buffers).toString())
-        
-    }catch{
-        //se não der ele manda null
-        req.body = null
-    }
-
+   await json(req,res)
     
     //se o metodo for get e a url users ele vai pegar a lista de usuarios
     if (method === 'GET' && url === '/users') {
         return res
-        .setHeader('Content-type', 'application/json')
         .end(JSON.stringify(users))
     }
     // se for post ele cria o usuario
