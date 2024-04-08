@@ -2,7 +2,7 @@
 import http from "node:http"
 import { json } from "./middlewares/json.js"
 import { Database } from "./middlewares/databse.js"
-
+import { randomUUID } from "node:crypto"
 //lista de usuarios(só na minha maquina e se eu atualizar ele reinicia)
 const database = new Database()
 
@@ -42,25 +42,17 @@ const server = http.createServer(/*requisiçao e resposta*/ async (req, res)=>{
         //para pegar o nome e o email
         const {name, email } = req.body
         //se não tiver usuario ainda ele cria o primeiro id
-        if(database.select('users').length == 0){
-            const user = {
-                id: 1,
-                name,
-                email
-            }
-            database.insert('users',user)
-        }else{
-            //adiciona um id novo a cada novo usuario criad
-            users.push({
-                id: users[users.length -1].id + 1,
-                name,
-                email
-            })
+        
+        const user = {
+            id: randomUUID(),
+            name,
+            email
         }
-        return res.end('criação de usuarios')
-    }
+            database.insert('users',user)
+            return res.writeHead(201).end('criação de usuarios')
+        }
     
-    return res.end("canal base")
+    return res.writeHead(404).end("Error 404")
 })
 
 server.listen(3333)
